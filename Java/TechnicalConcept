@@ -1,0 +1,96 @@
+Versioning helps in implementing different api contracts for same feature which could be related to different clients.
+| Code | Meaning              | When to Use      |
+| ---- | ----------           | ---------------- |
+| 200  | OK                   | GET success      |
+| 201  | Created              | POST success     |
+| 400  | Bad Request          | Validation failed         |
+| 401  | Unauthorized         | No auth token             |
+| 403  | Forbidden            | No permission             |
+| 404  | Not Found            | Resource missing          |
+| 429  | Too Many Requests    | Rate limiting             |
+| 500  | Internal Server Error |
+| 502  | Bad Gateway           |
+| 503  | Service Unavailable   |
+| 504  | Gateway Timeout       |
+
+
+Pagination helps in returning limited amount of data per second, improving performance, reducing db load. Example: transaction history, social media reels
+Offset Pagination and Cursor based pagination.
+Cursor=encoded last seen record
+Auto incremental ids are used as cursor. On each request cursor is store and pass into new subsequent request. (Example: (created_at,id) for transaction history)
+
+Design apis for millions req/sec
+1)Stateless api layer
+2)Caching
+3)DB optimisation
+4)Asynchronous programming
+5)Idempotency
+6)Rate Limiting
+7)Load shedding
+8)Observability
+9)Geo Scaling
+
+
+1. How do you design scalable APIs?
+Ans: I design stateless APIs behind load balancer, use CDN and Redis cache to reduce DB load, apply cursor-based pagination for large datasets.
+Use async programming via Kafka for heavy operations. Idempotency for critical flows like payments, rate limiting for protection, database sharding for horizontal scalability.
+
+2. What is stateless APIs?
+Ans: Stateless apis don't store client data in the server. Hence there is no clitn server coupling, easily scalable.
+
+3.Why CDN is needed?
+Ans: CDN->Content Delivery Network (CloudFlare, Akamai)
+CDN cache static content at edge locations, reducing latency improving performance and offloading traffic from origin servers.
+
+4. When do you use async programming and what do you return in that request to client?
+Ans: Use async when task is slow, and doesn't need immediate response.
+Example -> Payment processing, notification, sending email, video processing
+ API call response status code: 202 Accepted
+
+How do you implement rate limiting?
+Ans: Token Bucket or Sliding window algorithm. Rate limiting prevents abuse or too many request to servers in a timeframe from clients.
+
+How do you implement database sharding? And where are the shards stored?
+Ans: Split large database into multiple smaller databases (shards).
+Sharding strategy: Hash-based (eg: %4), Range-based (1-1000), Geo-based(Japan db, US db)
+Shards are stored in different db servers, different regions, cloud instances
+
+What are edge locations?
+Edge locations are geographically distributed servers placed closed to users to deliver content faster.
+
+Async programming response to client and SSE/Webhook?
+HTTP 202 Accepted
+Work continues in background
+Ways in which client receives response
+ 1) Webhook : Client provides callback url, server processes async, when done calls client
+ 2) SSE: Streams updates over persistent connection.
+ 3) polling
+
+“Webhooks ensure backend consistency, SSE ensures great user experience.”
+Use webhook for backend server to server communication, sse when real time ui updates are needed.
+Webhook works even when client is not active.
+
+“I use webhooks for backend-to-backend communication where reliability and retries are important, such as payment confirmations. I use SSE for real-time frontend updates like showing live payment status or dashboards. In production systems, both are often used together—webhooks update the backend, and SSE pushes updates to the UI.”
+
+
+TCP (Transmission Control Protocol)
+Connection oriented protocol that ensures reliable and ordered data delivery.
+(Payment System, text messages)
+
+UDP (User Datagram Protocol)
+Connectionless protocol that sends data without guarantee of delivery or order, faster than TCP.
+(Live Streaming, Voice/video)
+
+What happens when you click a url?
+When you enter the url, the browser finds the server using DNS lookup, then browser connects to server
+using TCP (SYNC->SYNC-ACK->ACK), TLS Handshake for HTTPS (secure connection, certificate validation,
+encryption keys exchanged), sends http request, server process request, sends response and finally browser renders page.
+
+URL → DNS → TCP → TLS → Request → Response → Render
+
+
+SkipList?
+Multi-level linked list
+Each level skips nodes
+Search, Insert, Delete -> O(logn)
+

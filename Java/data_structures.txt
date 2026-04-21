@@ -1,0 +1,77 @@
+Q. Bloom Filter?
+Ans: Bloom filter is a probabilistic data structure used to test whether an element
+is present in a set. It guarantees no false negatives but allows false positives.
+It's used as optimization rather than correctness.
+It tells you definitely not present or maybe present.
+
+In real world scenario:
+If definitely not present process the element.
+If maybe present, hit DB to check the existence.
+
+How it works?
+A bit array of size m.
+Hash(Element)%m but we use double hashing to find all other indices of bit array.
+h(x) = (h1(x) + i.h2(x))%m; i->[0,k-1]
+
+Important: Ensure h2(X) is non-zero by making it odd. h2(X) = hash(x) | 1.
+
+Compute base h1, h2 and then use i to iterate from 0 to k-1 and find other indices.
+Example: To check if transaction is already processed?
+Txn id -> bloom filter -> Maybe present -> Check DB
+                       -> Not present -> Process it
+
+
+Q. Can we delete element is bloom filter?
+Ans: No, since the set bits could be from other elements too. We cannot unset it for removal.
+
+Alternative:
+Counting Bloom Filter
+Cuckoo Filter
+HyperLogLog
+Count-Min Sketch
+
+Cuckoo is better than Bloom filter because Cuckoo filter have lower False positives than bloom.
+Hence, lower db queries to find the element existence.
+Also cuckoo we need to check only two buckets for element presence.
+In cuckoo the element fingerprint is stored in one of the two possible buckets i1 and i2.
+fp(x) = hash(x) → take first few bits (say 8–16 bits)
+i1 = hash(x) % m
+i2 = i1 XOR hash(fp(x))
+
+HyperLogLog?? (How many unique visitors in a website in a day)
+HyperLogLog is used to estimate the number of distinct elements in larger datasets efficiently.
+It works by hashing elements, splitting hash for bucket index, counting leading zeros, maintaining bucket-wise maximums to approximate cardinality
+with very low memory usage and small error rate.
+
+HyperLogLog trades exactness for massive memory savings.
+
+Why not HashSet?
+HashSet requires O(n) memory, which is not scalable for millions or billions of elements, whereas HyperLogLog
+uses constant memory.
+
+
+Count-Min Sketch??
+Probabilistic data structure used to estimate the frequency of elements in a data stream using sub-linear memory,
+with guaranteed no underestimation but possible overestimation.
+It solves problems like: How many times did each element occur?
+
+In this each incoming elements updates counter in multiple rows corresponding to hash functions and column corresponding to hash values.
+To query frequency, we take minimum across these counters, which helps reduce the effect of collision and provide approx count;
+
+
+Use Counting Bloom/Cuckoo -> have we seen this transaction before?
+Use Count-Min Sketch -> how many times have been this IP/Card used?
+
+Counting Bloom filter can store counts but are not reliable for frequency estimation due to heavy collision, cuckoo filter
+doesn't support counting at all.
+Count-Min sketch is specifically used for frequency estimation, uses multiple hash function and takes minimum
+to reduce overestimation due to collisions.
+
+Membership check (existence) -> Bloom Filter, Counting Bloom Filter, Cuckoo Filter
+Frequency of any item -> Count-Min Sketch
+Total Distinct Count/ unique Viewers -> HyperLogLog
+
+What happens when you enter the url?
+“When a user enters a URL, the browser parses it, checks cache, resolves the domain via DNS to an IP address, establishes a TCP connection and performs a TLS handshake for HTTPS.
+It then sends an HTTP request, which may go through a CDN and load balancer before reaching the backend server.
+The server processes the request and returns a response, which the browser parses and renders into a webpage using the DOM, CSSOM, and rendering pipeline.”
