@@ -1,0 +1,84 @@
+Q. Introduction
+First of all Congratulations to you and Paypay for your recent IPO on NASDAQ.
+
+I'm Avaneesh Singh, and have been working in Accenture Japan for the past 3.5 year. Currently, I'm staffed as backend developer where I have gained experience in developing system using Java and event-driven distributed architecture. 
+
+Looking ahead I want to work in fintech domain hence this role at Paypay aligns well with my future career goals, where engineering decisions impacts real-world financial transaction at scale which also directly impact users. 
+
+--------------------------------------------------------------------------
+
+Q. What are your reasons to apply to Paypay?
+Ans: I’m particularly interested to work in the fintech space, where engineering decisions directly impacts real-world financial transactions at scale. 
+
+PayPay stands out to me because it is one of the leading fintech platforms in Japan, especially with its vision of becoming a financial super-app by integrating wallet, card, banking capabilities, and offering investment products. 
+
+Along with that PayPay’s fast-paced and ownership-driven culture, where engineers are expected to take responsibility for end-to-end delivery while collaborating across teams aligns well with my mindset of working.  Paypay also has multicultural environment and people come with a diverse background, listening to other perspectives and collaboration can lead to better problem-solving and stronger outcomes. 
+
+Additionally, as PayPay continues to scale, I see significant opportunities to work on high-impact projects. that affects millions of users. This aligns well with my goal of building products that provides meaningful solutions to people while continuously growing as an engineer. 
+
+--------------------------------------------------------------------------
+
+Q. Startup Culture
+Ans: For me startup culture means working in a fast-paced, ownership driven environment, doing meaningful work and contributing to the growth of product. As an individual one has opportunities to work on different domain involved in end to end development till release and monitoring, which adds value to the team, company and personal growth while keeping the cost and resource optimization in mind. In any startup, one cannot grow and add value if he/she believes in regular 9 to 5 work, I believe if you're in startup, one need to be attentive and available if any pressing demand or production issues comes in irregular times. This helps in adding value to the company and product.
+
+--------------------------------------------------------------------------
+
+Q. FinTech Industry
+Ans: FinTech Industry in Japan and outside is rapidly growing, from providing solutions to customer enabling cashless payment to offering a wide range of financial services such as investments, insurance, lending, and wealth management. Also what I notice is that every fintech space is targeting user retention by providing solutions such that user money stays within their financial ecosystem. Which makes the fintech companies to come up with products, solutions such that most of the society needs are catered through innovative solutions.
+
+I see in future, we might see solution like forex wallet. US stocks exchange, remittance and maybe social trading platform. So yes, a lot of things need to be done with innovation and under regulation. Overall, I find fintech exciting because it combines large-scale engineering problems with real-world impact, making everyday financial activities simpler and more accessible for users.
+
+--------------------------------------------------------------------------
+
+Q. Tell us about a challenging system you built?
+
+**One of the most challenging systems I built was the Supplier Feed batch processing system in my current project**
+
+**Situation:**
+We had a requirement to process large volume of batch data related to vehicle key management module. The proposed architecture was tightly coupled, and prone to failures, and inconsistency.
+
+**Task:**
+My responsibility was to redesign this system architecture to be scalable, fault-tolerant, and capable of handling batch processing efficiently, while also ensuring data consistency across services.
+
+**Action:**
+I designed and implemented an **event-driven microservices architecture** using Azure services:
+
+* Used **Azure Blob Storage** as an intermediate storage layer for large batch files
+* Triggered processing using **Azure Functions (Blob triggers)** to handle events asynchronously
+* When a supplier uploads a compressed file:
+
+  **A blob-triggered service publishes an event to initiate processing.
+  **The feed-preprocessor service consumes the event, performs idempotency checks, decrypts and extracts the file, parses metadata, and persists the processed data into the database.
+  **It then emits a batch-level event to the device-batch-manager service, which updates batch-level records and generates device-level events.
+  **The device-manager service consumes these events, processes each device, stores device data, and integrates with the external server to generate signed certificates.
+  **Once certificates are generated, they are stored in the device_info table, and a response file is created and uploaded back to Azure Blob Storage.
+
+* Implemented the **Outbox pattern** to solve the dual-write problem between database and message broker, ensuring reliable event publishing
+
+For reliability:
+* Designed the system to be **idempotent**, so reprocessing wouldn’t cause inconsistencies
+* Implemented retry mechanisms and failure handling for downstream services
+
+I also worked on **observability**, integrating logging and distributed tracing to track batch processing and failures effectively.
+
+**Challenges:**
+
+* Handling large batch files without blocking services
+* Ensuring consistency between database updates and event publishing
+* Managing high throughput without degrading performance
+* Debugging intermittent failures in distributed workflows
+
+**Result:**
+
+* Successfully migrated the system to a scalable event-driven architecture
+* Eliminated data inconsistency issues using the Outbox pattern
+* Increased system reliability and reduced production incidents
+
+**Learning:**
+This experience strengthened my understanding of distributed systems, event-driven design, and consistency patterns, which are critical for building scalable financial or real-time processing systems.
+
+
+Q. “What are the biggest technical challenges PayPay is currently facing as it scales? And how do you see PayPay evolving in next 2-3 years?”
+Q. “If I join this team, what kind of problems would I be expected to solve in the first 3–6 months?” 
+Q. “Is there anything in my profile or discussion that you think I should improve on for this role?”
+

@@ -1,0 +1,35 @@
+HashMap vs Concurrent HashMap and internal working?
+HTTP vs HTTPS Encryption?
+Decryption Hashing
+Leetcode wordladder, linkedlist questions, Medium level palindrome question, Medium level puzzle code challenge, cost to connect all points, zigzag conversion, palindrome number, valid square, find given word in matrix of letters,
+SQL vs NOSQL
+LRU Cache implementation
+Garbage collection
+Isolation level in databases(Read committed isolation, snapshot isolation, serializable snapshot isolation)
+RDBMS guarantees
+volatile, synchronized, static
+Design trading system
+Design QR based payment system (System design of QR code digital wallet to retrive info, digital wallet transfer money, topup to digital wallet via 3rd banking API, retrieve wallet transaction history) 
+Design E-wallet system design
+Java access modifier
+Spring IOC
+Final, Finally?
+Spring container
+Array, Set, LinkedList, HashMap, Hash Collison
+DB, concurrency - multithreading, junit, spring boot, configuration,(sql , multithread), GC, memory management
+RDB, Redis, Kafka 
+Compare HashTable vs HashMap
+Compare complexity of Insert at 2nd index in LinkedList/ArrayList
+Print Binary Tree Traversal by level (Done)
+Write an SQL statement to deduce balance of an account having 2 columns balance and account_id given account_id and amount
+Number of islands Leetcode (Done)
+Java Multithreading concept
+Something like code efficiency for login issues
+Spring framework working architecture
+How will you increase the app users? (Based on your exp) - Do you have anything want to challenge in Paypay?
+TCP three-way handshake; how to reverse the linkedlist.
+different implementations of hashmaps, pros and cons, etc.
+Serialize and deserialize the binary tree. (Done)
+What is database index & its implementation - what is database transaction & how do you implement it?
+String palindrome, longest common palindrome sub string and binary search question to find start and end indexes of a number and general cs questions. (Done)
+

@@ -1,0 +1,328 @@
+1) JDK vs JVM vs JRE vs JIT
+JVM is the runtime that executes java bytecode. JVM is platform independent. Different implementation for Windows, Linux, macOS
+JRE contains the JVM and core libraries used when you only want toi run the java programs.
+JDK contains the JRE + dev tools like compiler(javac) used when you want to develop java code or applications. 
+JIT is a component inside JVM that identifies hot code and improves performance by converting bytecode into native machine code at runtime.
+
+2) Why Java is platform independent? Core difference between Java and C#
+Java is write once run everywhere. Java works with JVM, where JVM is specific to each platform and converts java bytecode into machinecode for execution.
+
+Java runs on JVM
+C# runs on .NET runtime
+C3 was windows specific until .NET runtime.
+
+3) Garbage collector? Types of memory in Java? Stack and Heap memory..
+Garbage collector automatically reclaims memory of the objects that are no longer reachable, freeing heap space and preventing memory leak.
+It's based on reachability from GC roots. GC roots includes-> thread stacks, static fields, JNI references, active threads.
+
+Type of memory in JAVA:
+Stack, Heap, Metaspace, Code cache
+
+Stack memory 
+	1) per thread. stores method calls, local variables, references.
+	2) is automatically cleaned when method returns or exits.
+
+Heap memory 
+	1) is shared across all threads. Stores objects, arrays.
+	2) is managed by GC. Divided into Young Gen (Eden, S0, S1) and Old Gen.
+
+Metaspace 
+	1) stores class metadata, method metadata, runtime constant pool.
+	2) stored in native memory, not heap.
+
+Code cache
+	1) JIT compiled native code.
+
+3.1) Major GC and Minor GC?  Algorithm used (Mark and Sweep algorithm)
+
+Minor GC runs on Young gen (eden+survivor spaces), happens very frequently, usually fast. When eden is full-> minor GC
+Live objects are copied to survivor spaces or promoted to old gen.
+
+Major GC runs on Old gen (Slower, much expensive, usually longer pauses)
+
+Old gen-> mark and sweep algorithm, compact live objects together to remove fragmentation.
+
+In low latency systems such as financial or streaming service, GC using G1 or ZGC to avoid full-GC pauses.
+
+4) primitive and non-primitive data type?
+Java has 8 primitive data types (primitives are those in which actual values are stored directly, memory-efficient and faster)
+int, char, long, byte, short, float, double, boolean. Typically store in stack memory.
+
+Non primitive data types are the ones which stores the reference to the object in memory..
+String, arrays, classes, objects, interfaces, enums. Non-primitives are stored in heap memory and accessed via references.
+
+JAVA is always pass by value, during a function call it always sends the copy of variable. So primitive variables remains unchanged irrespective of what happens inside a function, whereas Non-primitive can change since when copy of variable is passed it passes the reference which points to the exact same location in memory.
+
+In function call, parameters are stored in stack. For non-primitive, objects value is stored in heap but reference value is stored in the stack.
+
+String is only non-primitive, there is no primitive (string) version in Java.
+
+5) Stacks stored which kind of datatype? And why?
+Each thread has its own private memory stack. Stack in java memory stores primtiive values and references to the object. 
+
+6) Collections which are thread safe, and which are concurrent. 
+
+Thread-safe collections (synchronized), use intrinsic locking means one thread at a time.
+	Vector, HashTable, Stack
+
+Concurrent Collections, design for high concurrency without full locking (fine-grained locking)
+	Concurrent Hashmap, CopyOnWriteArrayList, ConcurrentLinkedQueue, Blocking Queue
+
+
+7) Collections and their thread-safe version?
+Collection | Synchronized                                           |  Concurrent
+ArrayList  | Collections.synchronizedList()                         | CopyOnWriteArrayList (Dynamic Array)
+LinkedList | Collections.synchronizedList()                         | No direct concurrent list
+HashSet    | Collections.synchronizedSet()                          | ConcurrentHashMap.newKeySet() 
+HashMap    | Collections.synchronizedMap()                          | ConcurrentHashMap
+TreeMap    | Collections.synchronizedSortedMap()                    | ConcurrentSkipListMap
+Queue      |                     -                                  | ConcurrentLinkedQueue 
+
+7.1) HashMap internal working
+
+key->value
+Internal structure: Array of buckets, each bucket can be singlenode, linkedlits, red-black tree
+map.put(): computes hash of key, index=(n-1) & hash (n is array size)
+
+So that's why equal and hashCode are important. Hashcode computes the bucket index, and equals check for the exact key match inside bucket.
+
+HashSet is internally backed by hashMap, instead it stores dummy constant PRESENT if key is present.
+
+ConcurrentHashMap: thread-safe high performance for concurrent access. Bucket-level synchronization
+
+No ConcurrentHashSet but we can do Set<String> s = ConcurrentHashMap.newKeySet();
+
+7.2) What is red-black tree?
+Self-balancing binary search tree. Insert, delete, search run in O(logn) time
+Properties: root is always black, each path has same number of black. node can be red or black, no two red nodes are adjacent. Null nodes are black.
+
+8) Threads? Thread Pool? Thread Lifecycle?
+Thread is a smallest unit of execution inside a process. While a thread pool manages a fixednumber of reusable worker threads to execute many tasks efficiently and safely.
+creating threads directly instead of using thread pool at scale can cause: high memory usage, slow creation, risk of creating too many threads (OOM).
+ThreadLifecycle : Thread moves from NEW to RUNNABLE, may enter BLOCKED. WAITING or TIMED_WAITING while waiting for locks or signals, and finally reaches TERMINATED.
+
+9) Reentrant Lock? Semaphore?
+Reentrant lock is an explicit mutual-exclusion lock allows only one thread to access a critical section at a time. Same thread can re-acquire it. Must unlock manually. Features like tryLock(), when timedOut then auto-release. 
+
+Semaphore controls how many threads can access a resource using 'permits'. Not a mutual exclusion lock but a thread counter. It manages number of permits.
+Semaphore limits concurrency and allow limited number of threads to access a specific resource.
+
+
+Major difference: Thread pool limits threads, semaphore limits resource usage.
+
+Example: you have 50 threads but your db resource can handle only 10 threads. 
+
+ExecutorService pool = Executors.newFixedThreadPool(50);
+Semaphore semaphore = new Semaphore(10);
+
+pool.submit(() -> {
+    semaphore.acquire();
+    try {
+        callDatabase();
+    } finally {
+        semaphore.release();
+    }
+});
+
+Hence, Thread pool controls how many task need to run concurrently. Semaphore controls how many concurrent access to a resource.
+
+
+9.1) Virtual threads and Synchronized?
+Virtual threads are lightweight threads introduced in Java 21 managed by JVM not OS. 
+Allows writing blocking code that scales to very high concurrency by parking virtual threads during I/O workloads, freeing the OS thread.
+
+Synchronized is a built in monitor lock on shared resource that provides mutual exclusion. Less flexible than reentrant lock. Synchronized automatically release the lock but offers limited control. 
+
+
+9.2) Abstract Method? Anonymous class?
+Abstract methods are method without implementation (no body). 
+Anonymous class is a class without name used to implement or extend something inline.
+
+10) Functional Interface? Why it was needed?
+Functional interface is an interface with exactly one abstract method. It enables lambda expression and allows passing behavior as a parameter.
+
+11) Why lambda expression is needed? (Because we need to create an object every time for basic operations??)
+Lambda expressions were introduced to simplify code by removing boilerplate of anonymous classes and to enable passing behavior as parameters. They work with functional interfaces and are heavily used in streams and functional-style programming, making code more concise and readable.
+
+In simple words, Functional interface with exactly one abstract method defines "what needs to be done?", lambda expression provide implementation of functional interface like "how it need to be done".
+
+
+12) Java streams? How do prepare stream? Filter method()? We pass Predicate inside filter? map(), collect()?
+
+A Java Stream is a sequence of elements from a data source like a collection, array, or I/O channel that supports functional-style operations such as filtering, mapping, sorting, and collecting.
+
+.filter() is an intermediate operation on streams used to keep only one elements that match the condition. Needs Predicate as a parameter
+Predicate<T> is a functional interface that returns Boolean true to keep element, false to discard element.
+
+.map() transforms each element into another form.
+.collect() is a terminal operation that converts stream into a final result.
+
+
+13) Why Constructor Injection? Dependency injection?
+ 	-> Dependency injection is a technique in which class dependencies are provided from outside rather than creating inside the class.
+        -> Constructor Injection is preferred because all dependent classes are injected via constructor, you cannot create class object without providing its 		dependencies.
+	-> Constructor injection prevents partially constructed objects.
+        -> Constructor injection with final dependency prevents them from being reassigned.  
+
+14) SOLID principles with example
+
+S - Single Responsibility Principle (A class should have only one business responsibility. You should not do validate, process, savetoDB, sendtoKafka inside a single class)
+
+O - open for extension, closed for modification (Should be able to add behavior instead of changing existing code, like strategy pattern eg: suppose we have customer type regular, premium and we have to calculate discount based on customer type  so if we do if-else in future based on change in types of customer or any new addition like vip we have to modify original if else code, instead with strategy we can prepare a new class implementing a common behavior)
+
+L - Liskov substitution principle (if a subclass is used in place of its parent class it should work without breaking the behavior. hence base class should always have common behavior) Bird Sparrow Penguin Fly example
+
+I - Interface Segregation Principle (Clients should not be forced to depend on methods they do not use, exah client depends on what it actually needs)
+
+D - Dependency Inversion Principle (Service layer depends on interfaces not concrete implementations, so the interface implementation can be changed without changing business logic)
+
+15) CAP theorem
+C - Consistency
+A - Availability
+P - Partition Tolerance
+
+Partition Tolerance is mandatory in distributed systems.
+
+15.1) ACID
+A (Atomicity) - All or nothing in a transaction, means transaction either fully succeed or fully fails.
+C (Consistency) - DB moves from one valid state to another
+I (Isolation) - All concurrent transactions behave as if sequential. No dirty reads. Transactions do not interfere with each other.
+D (Durability) - Transactions once committed is never lost.
+
+
+16) Abstract Class? Interface? Difference use wise? Extend vs Implement?
+ -> Abstract class is used when a class want to share a common state and behaviour. Class can extend one class.
+ -> Interface is used when you want to define a contract or capability. Class can implement multiple inheritance.
+ -> Diamond Problem : If a class allows multiple extend, subclass won't be able to identify which superclass method need to invoked.
+ 			Class allows multiple inheritance, because the method contract behaviour is overridden defined in subclass.
+
+18) Immutable class?
+ -> public final class (final to prevent subclassing, subclass can modify the parent field)
+ -> all fields should be private final
+   -> Unmodifiable fields OK
+   -> modifiable fields in constructor do defensive copying, and in getter return Collections.UnmodifiableList()....
+ -> no setter methods should be provided
+ -> fields must be initialized through constructor
+ -> getter returns the defensive copy of the mutable fields
+
+19) String vs StringBuilder vs StringBuffer?
+ -> String is immutable, hence thread-safe by design. 
+ -> StringBuilder is mutable and not thread-safe
+ -> StringBuffer is mutable and thread-safe, because it synchronizes its method and hence slower than StringBuilder.
+
+20) Singleton class? And thread safe way to declare it? OK Complete
+ -> Constructor should be private
+ -> instance variable is private static 
+ -> instance method is public static / public static synchronized (thread-safe singleton version)
+ -> if it's not thread safe, two threads can create singleton object during initialization (race-condition) and end up creating two Singleton objects.
+
+21) Volatile?, Atomic integer and Atomic reference? OK Complete
+	-> Volatile ensure visibility of the changes across threads, if the shared resource is updated by one thread, its updated value is reflected to other thread. And volatile gurantees that read and write go through the main memory, but doesn't provide atomicity.
+	-> Atomic helps in performing operations atomically by compare-and-set operations and make it thread-safe.
+
+22) Future, Callable, Runnable, Completable Futures? (P)
+
+Runnable is a functional interface representing a task that does not return a result and cannot throw checked exceptions.
+
+Callable is a functional interface representing a task that returns a result and can throw checked exceptions.
+
+Future represents the result of an asynchronous computation, allowing retrieval of the result once the task is completed, typically via a blocking call. (.get(), .join()). We get future when we submit callable to executor service.
+
+CompletableFuture is an advanced implementation of Future that supports non-blocking, asynchronous programming with callbacks, chaining, and composition of multiple tasks.
+
+Future → “Here is the result, come back later”
+CompletableFuture → “Here is the flow, continue automatically”
+
+
+23) OOPS principle?
+Encapsulation: bundle data and behavior together and hide internal state, control access through methods. (Use of private fields and getter)
+Inheritance: One class derives from another class (extends) Inheritance is used to reuse common behavior
+Polymorphism: Same interface or base type but different behavior at runtime.
+Abstraction: Show only what object does not how it does it.
+
+24) Runtime polymorphism vs Compile time polymorphism? (R)
+
+Compile time polymorphism is achieved through method overloading, where multiple methods have the same name but different parameter lists, and the method to call is determined at compile time.
+
+Runtime polymorphism is achieved through method overriding, where a subclass provides a specific implementation of a method defined in the parent class, and the method call is resolved at runtime based on the object type.
+
+
+25) linkedHashMap?? TreeMap?? (R)
+
+26) What happens if there is an exception inside static block? 
+	If an exception occurs inside a static block, it is wrapped in ExceptionInInitializerError. After that, the class is marked as erroneous, and further attempts to use it result in NoClassDefFoundError
+
+
+27) Why main is public static? (R)
+pubic Because the JVM must be able to access it from outside the class. 
+static Because the JVM must call main without creating an object of the class.
+
+28) Comparator vs Comparable
+Comparable defines the natural ordering of a class, while Comparator defines external or multiple custom orderings without modifying the class.
+
+29) OLTP systems are optimized for fast, concurrent transactional operations like trades and payments.
+OLAP systems are optimized for analytical queries such as aggregations and historical reporting.
+OLTP -> Streaming/batch -> OLAP
+
+30) Clustered Index defines the storage order of the table because its leaf level contains the actual data rows, so table is ordered in the order of clustered index.
+Non-clustered index is a separate structure whose leaf node only contains the index key and a row locator, which points to the corresponding key row.
+
+31) Checked vs Unchecked exception?
+
+Checked exceptions are enforced at compile time and must be handled or declared, while unchecked exceptions occur at runtime due to programming errors and are not enforced by the compiler.
+
+32) Memory Leak Causes?
+A memory leak happens when objects are no longer needed. but are still referenced, so the Garbage Collector (GC) cannotStatic lives for entire lifecycle, objects never eligible for GC free them.
+Static collection holding objects. Static lives for entire lifecycle, objects never eligible for GC
+Unclosed resources
+Improper cache implementation (keys never evicted)
+Infinite loops 
+
+How to detect/ Heap dump analysis, GC logs
+
+33) Thread vs process, Synchronization, Locks, DeadLocks, ThreadPools, synchronized, ExecutorService
+
+34) 
+Disk → B+ Tree wins
+RAM → BST is often enough (sometimes faster)
+Range queries → B+ Tree wins
+
+A B+ Tree index is a balanced tree structure where internal nodes store keys and leaf nodes store actual data (or pointers), optimized for disk access.
+Clustered Index: Defines physical order of data in table. Leaf Node=actual row data
+Non-clustered Index: Separate structure storing key + pointer to data
+Hash Index: Uses hash function for direct key lookup
+Composite Index: Index on multiple columns
+
+Lock: Lock is a mechanism used to control access to shared resources so that multiple threads/transactions don't cause inconsistency.
+
+Shared Lock: A shared lock allows multiple transactions to read the same data simultaneously, but prevents writes.
+Exclusive Lock: An exclusive lock allows only one transaction to read/write, blocking all others.
+Partitioning: Partitioning splits a table into smaller pieces within the same database. (Lower scans, improved latency)
+Sharding: Sharding splits data across multiple databases/servers. (Scalability)
+Deadlocks: Deadlock occurs when two or more transactions are waiting for each other’s locks indefinitely.
+Reentrant lock: Allows the same thread to acquire the same lock multiple times without blocking.
+
+| Algorithm      | Use Case                    | Negative Weight | Negative Cycle | Complexity |
+| -------------- | --------------------------- | --------------- | -------------- | ---------- |
+| Dijkstra       | Single-source shortest path | ❌              | ❌             | O(E log V) |
+| Bellman-Ford   | Single-source shortest path | ✅              | ✅             | O(VE)      |
+| Floyd-Warshall | All-pairs shortest path     | ✅              | ✅             | O(V³)      |
+
+Use Dijkstra → when weights are non-negative & graph is large (Works with Directed Graph)
+Use Bellman-Ford → when negative weights exist (Works only with Directed Graph, for undirected treat edge as two directed edges. Helps us to detect negative cycles)
+Use Floyd-Warshall → when need distance between every pair (multi source shortest path, detect negative cycle) (Works only with Directed Graph, for undirected treat edge as two directed edges)
+graph is small (V ≤ 400)
+
+Why non-negative matters
+
+Dijkstra assumes once the shortest path to a node is finalized, it won’t improve later.
+That breaks if negative weights exist.
+
+
+MST: Minimum spanning tree, connect all vertices, exactly V-1 edge, no cycle, total edge weight is minimum. MST is for undirected graph.
+
+priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq; MIN HEAP
+
+ElogV
+
+
